@@ -1,0 +1,51 @@
+// Prisma schema for Luxe Salon & Spa
+// Two models: Lead (booking form submissions) + Subscriber (newsletter/loyalty signups)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String
+  service     String
+  preferredDate String?
+  message     String?
+  status      LeadStatus @default(NEW)
+  source      String   @default("website") // website | whatsapp | instagram | referral
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([service])
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  source    String   @default("footer") // footer | hero | popup
+  tags      String   @default("") // comma-separated: "member,bridal,luxe"
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active])
+  @@index([createdAt])
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  ARCHIVED
+}
